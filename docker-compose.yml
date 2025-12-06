@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: stage-7-postgres-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: stage_7_db
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - stage-7-data:/var/lib/postgresql/data
+
+    networks:
+      - stage-7-network
+
+volumes:
+  stage-7-data:
+
+networks:
+  stage-7-network:

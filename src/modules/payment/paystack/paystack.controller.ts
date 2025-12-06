@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { PaystackPaymentService } from './paystack.service';
 
 @Controller('payment')
@@ -15,7 +15,7 @@ export class PaystackPaymentController {
     return this.service.webhookHandler();
   }
 
-  @Post('status')
+  @Get('status')
   statusCheck() {
     return this.service.statusCheck();
   }
