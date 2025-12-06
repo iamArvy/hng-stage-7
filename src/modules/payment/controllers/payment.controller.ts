@@ -1,17 +1,17 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Param } from '@nestjs/common';
 import { PaymentService } from '../services';
 
-@Controller('payment')
+@Controller('payments')
 export class PaymentController {
   constructor(private readonly service: PaymentService) {}
 
-  @Get('')
+  @Get()
   getPayments() {
     return this.service.getPayments();
   }
 
   @Get(':id/status')
-  statusCheck() {
-    return this.service.statusCheck();
+  statusCheck(@Param('id') id: string, @Body('refresh') refresh: boolean) {
+    return this.service.statusCheck(id, refresh);
   }
 }

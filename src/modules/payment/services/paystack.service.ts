@@ -2,7 +2,7 @@ import { UserModelAction } from 'src/modules/user/model-actions/user.model-actio
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaystackHttpClient } from '../clients';
 import { PaymentModelAction } from '../model-actions';
-import { InitializePaymentResponseDto } from '../dto';
+import { InitializePaymentResponseDto, VerifyPaymentResponseDto } from '../dto';
 import { IJwtUser } from 'src/common/types';
 
 @Injectable()
@@ -43,5 +43,25 @@ export class PaystackService {
         {"status": true}
       Errors: 400 invalid signature, 500 server error
     */
+  }
+
+  async statusCheck(reference: string) {
+    /*
+      Purpose: Return the latest status for reference.
+      Behavior: Return DB status. If missing or caller requests refresh=true, call Paystack verify endpoint to fetch live status and update DB.
+      Response: 200
+        { 
+          "reference": "...", 
+          "status": "success|failed|pending", 
+          "amount": 5000, 
+          "paid_at": "..." 
+        }
+    */
+    const response = await this.client.request<VerifyPaymentResponseDto>({
+      method: 'GET',
+      url: 'transaction/verify/' + reference,
+    });
+
+    return response.data;
   }
 }

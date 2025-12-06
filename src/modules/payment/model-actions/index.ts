@@ -1,1 +1,1 @@
-export * from './payment.model-actions';
+export * from './payment.model-action';

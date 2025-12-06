@@ -93,6 +93,7 @@ export const PaymentScalarFieldEnum = {
   payment_method: 'payment_method',
   amount: 'amount',
   status: 'status',
+  paid_at: 'paid_at',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

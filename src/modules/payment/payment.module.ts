@@ -4,11 +4,17 @@ import { PaystackHttpClient } from './clients';
 
 import { Module } from '@nestjs/common';
 import { PaystackController } from './controllers';
-import { PaystackService } from './services';
+import { PaymentService, PaystackService } from './services';
+import { PaymentController } from './controllers/payment.controller';
 
 @Module({
   imports: [UserModule],
-  controllers: [PaystackController],
-  providers: [PaymentModelAction, PaystackService, PaystackHttpClient],
+  controllers: [PaymentController, PaystackController],
+  providers: [
+    PaymentModelAction,
+    PaymentService,
+    PaystackService,
+    PaystackHttpClient,
+  ],
 })
 export class PaymentModule {}

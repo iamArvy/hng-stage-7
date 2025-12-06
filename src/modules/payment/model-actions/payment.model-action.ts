@@ -14,8 +14,11 @@ export class PaymentModelAction {
     return this.prisma.payment.findMany();
   }
 
-  findOne(where: Prisma.PaymentWhereUniqueInput) {
-    return this.prisma.payment.findUnique({ where });
+  findOne(
+    where: Prisma.PaymentWhereUniqueInput,
+    select?: Prisma.PaymentSelect,
+  ) {
+    return this.prisma.payment.findUnique({ where, select });
   }
 
   update(
