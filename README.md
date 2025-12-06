@@ -1,6 +1,6 @@
-# Open School API: Secure Auth & Payments Gateway 🔐
+# Secure Auth & Payments Gateway 🔐
 
-This project serves as a robust backend API for an Open School Portal, meticulously crafted with TypeScript, NestJS, and Prisma. It provides essential functionalities including secure user authentication via Google OAuth2 and JWT, comprehensive user management, and seamless payment processing integrated with Paystack. Designed for high performance and maintainability, it leverages modern architectural patterns, robust logging with Winston, and thorough validation to ensure data integrity and system stability.
+This project serves as a robust backend API for Authentication and Payment, meticulously crafted with TypeScript, NestJS, and Prisma. It provides essential functionalities including secure user authentication via Google OAuth2 and JWT, comprehensive user management, and seamless payment processing integrated with Paystack. Designed for high performance and maintainability, it leverages modern architectural patterns, robust logging with Winston, and thorough validation to ensure data integrity and system stability.
 
 ## Overview
 This backend API is built using TypeScript with the NestJS framework, integrating Prisma ORM for database interactions and providing secure authentication via JWT and Google OAuth2, alongside payment processing capabilities through Paystack.
@@ -60,13 +60,13 @@ JWT_SECRET=supersecretjwtkey
 # Application Configuration (Optional, defaults are provided)
 NODE_ENV=development
 PORT=3000
-APP_NAME="Open School Portal"
-APP_SLUG=open-school-portal
+APP_NAME="AuthPay App"
+APP_SLUG=auth-pay
 APP_HOST=localhost
 APP_URL=http://localhost:3000
 APP_PREFIX=api
 APP_VERSION=v1
-APP_DESCRIPTION="Open School Portal API"
+APP_DESCRIPTION="AuthPay App is the best for Authentication and payment"
 ```
 
 ### Database Migrations
@@ -94,7 +94,7 @@ This will build the application and then run it in production mode.
 ## Usage
 Once the application is running, you can access the API and its documentation:
 
-*   **API Root**: `http://localhost:3000/api/v1`
+*   **API Root**: `http://localhost:3000`
 *   **API Documentation (Swagger)**: `http://localhost:3000/docs`
 
 The Swagger UI provides an interactive interface to explore and test all available API endpoints. For authenticated endpoints, use the `Authorize` button in Swagger to input your JWT bearer token obtained after successful login.
@@ -102,7 +102,7 @@ The Swagger UI provides an interactive interface to explore and test all availab
 ## API Documentation
 
 ### Base URL
-`http://localhost:3000/api/v1`
+`http://localhost:3000`
 
 ### Endpoints
 
@@ -429,8 +429,8 @@ This project is UNLICENSED.
 
 ## Author Info
 
--   **Your Name**: [Your Social Media (e.g., LinkedIn)](https://linkedin.com/in/your-username) | [Your Portfolio/Website](https://your-website.com)
--   **Email**: [your.email@example.com](mailto:your.email@example.com)
+-   **Oluwaseyi Oke**: [LinkedIn](https://linkedin.com/in/oluwaseyi-oke-backend-engineer) | [Your Portfolio/Website](https://oluwaseyi-oke-portfolio.vercel.app)
+-   **Email**: [iamarvy.tech@gmail.com](mailto:iamarvy.tech@gmail.com)
 
 ---
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
