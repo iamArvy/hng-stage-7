@@ -1,11 +1,26 @@
 import { Module } from '@nestjs/common';
-import { GoogleAuthController, GoogleAuthService } from './google';
-import { GoogleStrategy } from './google/google.strategy';
 import { UserModule } from '../user/user.module';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { GoogleAuthController } from './controllers';
+import { GoogleAuthService } from './services';
+import { GoogleStrategy } from './strategies';
+import { TokenService } from './services/token.service';
 
 @Module({
-  imports: [UserModule],
+  imports: [
+    JwtModule.registerAsync({
+      imports: [],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+      }),
+    }),
+    UserModule,
+  ],
   controllers: [GoogleAuthController],
-  providers: [GoogleAuthService, GoogleStrategy],
+  providers: [GoogleAuthService, GoogleStrategy, JwtStrategy, TokenService],
+  exports: [JwtStrategy],
 })
 export class AuthModule {}

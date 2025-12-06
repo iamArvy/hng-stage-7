@@ -17,5 +17,7 @@ export const validationSchema = Joi.object({
   GOOGLE_REDIRECT_URI: Joi.string().uri().required(),
 
   PAYSTACK_SECRET_KEY: Joi.string().required(),
-  PAYSTACK_PUBLIC_KEY: Joi.string().required(),
+  PAYSTACK_BASE_URL: Joi.string().uri().default('https://api.paystack.co'),
+
+  JWT_SECRET: Joi.string().required(),
 });

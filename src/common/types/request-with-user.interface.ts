@@ -7,6 +7,11 @@ export interface IGoogleUser {
   email_verified: boolean;
 }
 
+export interface IJwtUser {
+  id: string;
+  email: string;
+}
+
 export interface IRequestWithUser<T> {
   user: T;
 }

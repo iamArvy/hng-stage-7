@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GoogleAuthController } from './google.controller';
-import { GoogleAuthService } from './google.service';
+import { GoogleAuthService } from '../services';
 
 describe('GoogleAuthController', () => {
   let controller: GoogleAuthController;

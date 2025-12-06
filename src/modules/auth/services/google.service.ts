@@ -5,6 +5,7 @@ import { IGoogleUser } from 'src/common/types';
 import { AuthProvider } from 'src/generated/prisma/enums';
 import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
 import { UserModelAction } from 'src/modules/user/model-actions/user.model-action';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class GoogleAuthService {
@@ -16,6 +17,7 @@ export class GoogleAuthService {
   constructor(
     config: ConfigService,
     private readonly userModelAction: UserModelAction,
+    private readonly token: TokenService,
   ) {
     this.clientId = config.get('GOOGLE_CLIENT_ID') || '';
     this.redirectUri = config.get('app.url') + '/auth/google/callback';
@@ -58,7 +60,10 @@ export class GoogleAuthService {
         profile_picture: gUser.picture,
       },
     );
-
-    return new UserResponseDto(user);
+    const access = await this.token.access(user.id, user.email);
+    return {
+      user: new UserResponseDto(user),
+      access,
+    };
   }
 }

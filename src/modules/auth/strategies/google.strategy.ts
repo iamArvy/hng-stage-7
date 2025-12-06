@@ -35,7 +35,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: IGoogleProfile,
   ): any {
-    console.log('Google profile:', profile);
     return profile._json;
   }
 }
