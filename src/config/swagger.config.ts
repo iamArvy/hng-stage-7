@@ -7,7 +7,6 @@ export const swaggerConfig = () =>
     .setTitle(app.name)
     .setDescription(app.description)
     .setVersion(app.version)
-    .addTag(app.name)
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',

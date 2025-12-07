@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { InitializePaymentResponseDto, VerifyPaymentResponseDto } from '../dto';
 
 @Injectable()
 export class PaystackHttpClient {
@@ -64,5 +65,24 @@ export class PaystackHttpClient {
     this.logger.error(`[Paystack] ${status} → ${JSON.stringify(payload)}`);
 
     throw new HttpException(payload, status);
+  }
+
+  async initializePayment(email: string, amount: number, reference: string) {
+    const response = await this.request<InitializePaymentResponseDto>({
+      method: 'POST',
+      url: '/transaction/initialize',
+      data: { email, amount, reference },
+    });
+
+    return response.data;
+  }
+
+  async verifyPayment(reference: string) {
+    const response = await this.request<VerifyPaymentResponseDto>({
+      method: 'GET',
+      url: 'transaction/verify/' + reference,
+    });
+
+    return response.data;
   }
 }
