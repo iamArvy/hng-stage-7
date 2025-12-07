@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from '../user/user.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -17,7 +16,6 @@ import { TokenService } from './services/token.service';
         secret: config.get<string>('JWT_SECRET'),
       }),
     }),
-    UserModule,
   ],
   controllers: [GoogleAuthController],
   providers: [GoogleAuthService, GoogleStrategy, JwtStrategy, TokenService],

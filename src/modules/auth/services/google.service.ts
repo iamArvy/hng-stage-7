@@ -4,8 +4,8 @@ import qs from 'qs';
 import { IGoogleUser } from 'src/common/types';
 import { AuthProvider } from 'src/generated/prisma/enums';
 import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
-import { UserModelAction } from 'src/modules/user/model-actions/user.model-action';
 import { TokenService } from './token.service';
+import { PrismaService } from 'src/db/prisma.service';
 
 @Injectable()
 export class GoogleAuthService {
@@ -16,8 +16,8 @@ export class GoogleAuthService {
 
   constructor(
     config: ConfigService,
-    private readonly userModelAction: UserModelAction,
     private readonly token: TokenService,
+    private readonly prisma: PrismaService,
   ) {
     this.clientId = config.get('GOOGLE_CLIENT_ID') || '';
     this.redirectUri = config.get('app.url') + '/auth/google/callback';
@@ -43,9 +43,9 @@ export class GoogleAuthService {
       throw new BadRequestException('Google authentication failed');
     }
 
-    const user = await this.userModelAction.findOrCreate(
-      { google_id: gUser.sub },
-      {
+    const user = await this.prisma.user.upsert({
+      where: { google_id: gUser.sub },
+      create: {
         provider: AuthProvider.GOOGLE,
         google_id: gUser.sub,
         email: gUser.email,
@@ -53,13 +53,13 @@ export class GoogleAuthService {
         last_name: gUser.family_name,
         profile_picture: gUser.picture,
       },
-      {
+      update: {
         email: gUser.email,
         first_name: gUser.given_name,
         last_name: gUser.family_name,
         profile_picture: gUser.picture,
       },
-    );
+    });
     const access = await this.token.access(user.id, user.email);
     return {
       user: new UserResponseDto(user),

@@ -3,7 +3,6 @@ import { PaymentModelAction } from '../model-actions';
 import { PrismaService } from 'src/db/prisma.service';
 import { PaystackHttpClient } from '../clients';
 import { IJwtUser } from 'src/common/types';
-import { InitializePaymentResponseDto } from '../dto';
 
 @Injectable()
 export class PaymentService {
@@ -26,14 +25,14 @@ export class PaymentService {
       user: { connect: { id: user.id } },
     });
 
-    const response =
-      await this.paystackClient.request<InitializePaymentResponseDto>({
-        method: 'POST',
-        url: '/transaction/initialize',
-        data: { email: user.email, amount, reference: payment.id },
-      });
+    const { reference, authorization_url } =
+      await this.paystackClient.initializePayment(
+        user.email,
+        amount,
+        payment.id,
+      );
 
-    return response.data;
+    return { reference, authorization_url };
   }
 
   async statusCheck(id: string, refresh: boolean) {
@@ -50,9 +49,9 @@ export class PaymentService {
         { id: payment.id },
         { status, paid_at },
       );
-      return updatedPayment;
+      return { status: updatedPayment.status };
     }
-    return payment;
+    return { status: payment.status };
   }
 
   webhookHandler(signature: string, body: any) {
