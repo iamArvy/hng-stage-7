@@ -3,6 +3,7 @@ import { PrismaService } from 'src/db/prisma.service';
 import { IJwtUser } from 'src/common/types';
 import { PaystackHttpClient } from 'src/integrations/paystack';
 import { InitializePaymentResponse, PaymentStatusDto } from '../dto';
+import { PaymentStatus } from 'src/generated/prisma/enums';
 
 @Injectable()
 export class PaymentService {
@@ -15,22 +16,34 @@ export class PaymentService {
     return this.prisma.payment.findMany();
   }
 
-  async initializePayment(rUser: IJwtUser, amount: number) {
+  async initializePayment(
+    rUser: IJwtUser,
+    amount: number,
+    idempotency_key: string,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id: rUser.id } });
     if (!user) throw new NotFoundException('User not found');
 
-    const payment = await this.prisma.payment.create({
-      data: {
-        amount,
-        user: { connect: { id: user.id } },
-      },
+    const existing = await this.prisma.payment.findUnique({
+      where: { idempotency_key },
     });
+
+    if (existing) return new InitializePaymentResponse(existing);
 
     const response = await this.paystackClient.initializePayment(
       user.email,
       amount,
-      payment.id,
     );
+
+    await this.prisma.payment.create({
+      data: {
+        amount,
+        user: { connect: { id: user.id } },
+        idempotency_key,
+        reference: response.reference,
+        authorization_url: response.authorization_url,
+      },
+    });
 
     return new InitializePaymentResponse(response);
   }
@@ -41,13 +54,13 @@ export class PaymentService {
     if (!payment) {
       throw new NotFoundException('Payment not found');
     }
-    if (payment.status === 'pending' || refresh) {
+    if (payment.status === PaymentStatus.PENDING || refresh) {
       const { status, paid_at } = await this.paystackClient.verifyPayment(
-        payment.id,
+        payment.reference,
       );
       const updatedPayment = await this.prisma.payment.update({
         where: { id: payment.id },
-        data: { status, paid_at },
+        data: { status: this.mapPaystackStatus(status), paid_at },
       });
       return new PaymentStatusDto(updatedPayment);
     }
@@ -68,4 +81,17 @@ export class PaymentService {
         Errors: 400 invalid signature, 500 server error
       */
   }
+
+  private mapPaystackStatus = (status: string): PaymentStatus => {
+    switch (status) {
+      case 'success':
+        return PaymentStatus.SUCCESS;
+      case 'failed':
+        return PaymentStatus.FAILED;
+      case 'abandoned':
+        return PaymentStatus.ABANDONED;
+      default:
+        return PaymentStatus.PENDING;
+    }
+  };
 }

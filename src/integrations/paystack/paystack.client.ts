@@ -73,11 +73,11 @@ export class PaystackHttpClient {
     throw new HttpException(payload, status);
   }
 
-  async initializePayment(email: string, amount: number, reference: string) {
+  async initializePayment(email: string, amount: number) {
     const response = await this.request<IInitializePaymentResponse>({
       method: 'POST',
       url: '/transaction/initialize',
-      data: { email, amount, reference },
+      data: { email, amount },
     });
 
     return response.data;

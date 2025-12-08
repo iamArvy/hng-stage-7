@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   // Headers,
@@ -58,8 +59,9 @@ export class PaymentController {
   initializePayment(
     @Req() req: IRequestWithUser<IJwtUser>,
     @Body() { amount }: InitializePaymentRequestDto,
+    @Headers('Idempotency-key') key: string,
   ) {
-    return this.service.initializePayment(req.user, amount);
+    return this.service.initializePayment(req.user, amount, key);
   }
 
   // @Post('webhook')
