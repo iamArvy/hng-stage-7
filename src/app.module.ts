@@ -1,21 +1,28 @@
-import { validationSchema } from './config/validation.schema';
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './common/interceptors';
 import { WinstonModule } from 'nest-winston';
-import { appConfig, winstonConfig } from './config';
 import { DBModule } from './db/db.module';
+import { config, validationSchema, WinstonConfig } from './config';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig],
+      load: config,
       validationSchema,
     }),
-    WinstonModule.forRoot(winstonConfig),
+    WinstonModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const winstonConfig =
+          config.getOrThrow<WinstonConfig>('logger.winston');
+        return winstonConfig;
+      },
+    }),
     DBModule,
     PaymentModule,
     AuthModule,
@@ -24,6 +31,10 @@ import { DBModule } from './db/db.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
     },
   ],
 })

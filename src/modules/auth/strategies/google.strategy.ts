@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
+import { IGoogleConfig } from 'src/config';
 
 interface IGoogleProfile {
   id: string;
@@ -20,11 +21,13 @@ interface IGoogleProfile {
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(private readonly configService: ConfigService) {
+  constructor(config: ConfigService) {
+    const { clientId, secret, redirectUri } =
+      config.getOrThrow<IGoogleConfig>('auth.google');
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID') || '',
-      clientSecret: configService.get('GOOGLE_CLIENT_SECRET') || '',
-      callbackURL: configService.get('GOOGLE_REDIRECT_URI'),
+      clientID: clientId,
+      clientSecret: secret,
+      callbackURL: redirectUri,
       scope: ['openid', 'email', 'profile'],
       passReqToCallback: false,
     });

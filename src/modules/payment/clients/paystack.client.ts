@@ -1,31 +1,36 @@
 import {
   Injectable,
-  Logger,
   ServiceUnavailableException,
   HttpException,
+  Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { InitializePaymentResponseDto, VerifyPaymentResponseDto } from '../dto';
+import { Logger } from 'winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { IPaystackConfig } from 'src/config';
 
 @Injectable()
 export class PaystackHttpClient {
   protected axiosClient: AxiosInstance;
-  protected readonly logger = new Logger('PaystackClient');
+  private readonly logger: Logger;
+  private secret: string;
+  private baseUrl = 'https://api.paystack.co';
 
-  constructor(config: ConfigService) {
-    const secretKey = config.get<string>('PAYSTACK_SECRET_KEY');
-    const baseURL = 'https://api.paystack.co';
-
-    if (!secretKey) {
-      this.logger.error('PAYSTACK_SECRET_KEY not configured');
-    }
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) baseLogger: Logger,
+    config: ConfigService,
+  ) {
+    this.logger = baseLogger.child({ context: PaystackHttpClient.name });
+    const { secret } = config.getOrThrow<IPaystackConfig>('payment.paystack');
+    this.secret = secret;
 
     this.axiosClient = axios.create({
-      baseURL,
+      baseURL: this.baseUrl,
       timeout: 8000,
       headers: {
-        Authorization: `Bearer ${secretKey}`,
+        Authorization: `Bearer ${secret}`,
         'Content-Type': 'application/json',
       },
     });
@@ -85,4 +90,6 @@ export class PaystackHttpClient {
 
     return response.data;
   }
+
+  async confirmWebhookSecret() {}
 }

@@ -6,6 +6,7 @@ import { AuthProvider } from 'src/generated/prisma/enums';
 import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
 import { TokenService } from './token.service';
 import { PrismaService } from 'src/db/prisma.service';
+import { IGoogleConfig } from 'src/config';
 
 @Injectable()
 export class GoogleAuthService {
@@ -19,8 +20,10 @@ export class GoogleAuthService {
     private readonly token: TokenService,
     private readonly prisma: PrismaService,
   ) {
-    this.clientId = config.get('GOOGLE_CLIENT_ID') || '';
-    this.redirectUri = config.get('app.url') + '/auth/google/callback';
+    const { clientId, redirectUri } =
+      config.getOrThrow<IGoogleConfig>('auth.google');
+    this.clientId = clientId;
+    this.redirectUri = redirectUri;
   }
   redirectToGoogle() {
     const url =

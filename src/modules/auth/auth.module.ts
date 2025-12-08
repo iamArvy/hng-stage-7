@@ -6,15 +6,17 @@ import { GoogleAuthController } from './controllers';
 import { GoogleAuthService } from './services';
 import { GoogleStrategy } from './strategies';
 import { TokenService } from './services/token.service';
+import { IJwtConfig } from 'src/config';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
       imports: [],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
-      }),
+      useFactory: (config: ConfigService) => {
+        const jwt = config.getOrThrow<IJwtConfig>('auth.jwt');
+        return jwt;
+      },
     }),
   ],
   controllers: [GoogleAuthController],
