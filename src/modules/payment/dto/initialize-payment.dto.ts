@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsInt, Min } from 'class-validator';
 
 export class InitializePaymentRequestDto {
@@ -12,6 +12,7 @@ export class InitializePaymentRequestDto {
   amount: number;
 }
 
+@Exclude()
 export class InitializePaymentResponse {
   @Expose()
   @ApiProperty({
@@ -26,10 +27,8 @@ export class InitializePaymentResponse {
     description: 'URL where the user should complete payment',
   })
   authorization_url: string;
-}
 
-export class InitializePaymentResponseDto {
-  @Expose()
-  @ApiProperty({ type: InitializePaymentResponse })
-  data: InitializePaymentResponse;
+  constructor(partial: Partial<InitializePaymentResponse>) {
+    Object.assign(this, partial);
+  }
 }

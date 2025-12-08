@@ -1,12 +1,10 @@
-import { PaymentModelAction } from './model-actions';
-import { PaystackHttpClient } from './clients';
-
 import { Module } from '@nestjs/common';
 import { PaymentService } from './services';
 import { PaymentController } from './controllers/payment.controller';
+import { PaystackHttpClient } from 'src/integrations/paystack';
 
 @Module({
   controllers: [PaymentController],
-  providers: [PaymentModelAction, PaymentService, PaystackHttpClient],
+  providers: [PaymentService, PaystackHttpClient],
 })
 export class PaymentModule {}

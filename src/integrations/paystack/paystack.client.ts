@@ -6,16 +6,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-import { InitializePaymentResponseDto, VerifyPaymentResponseDto } from '../dto';
 import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { IPaystackConfig } from 'src/config';
+import {
+  IVerifyPaymentResponse,
+  IInitializePaymentResponse,
+} from './interfaces';
 
 @Injectable()
 export class PaystackHttpClient {
   protected axiosClient: AxiosInstance;
   private readonly logger: Logger;
-  private secret: string;
   private baseUrl = 'https://api.paystack.co';
 
   constructor(
@@ -24,7 +26,6 @@ export class PaystackHttpClient {
   ) {
     this.logger = baseLogger.child({ context: PaystackHttpClient.name });
     const { secret } = config.getOrThrow<IPaystackConfig>('payment.paystack');
-    this.secret = secret;
 
     this.axiosClient = axios.create({
       baseURL: this.baseUrl,
@@ -73,7 +74,7 @@ export class PaystackHttpClient {
   }
 
   async initializePayment(email: string, amount: number, reference: string) {
-    const response = await this.request<InitializePaymentResponseDto>({
+    const response = await this.request<IInitializePaymentResponse>({
       method: 'POST',
       url: '/transaction/initialize',
       data: { email, amount, reference },
@@ -83,7 +84,7 @@ export class PaystackHttpClient {
   }
 
   async verifyPayment(reference: string) {
-    const response = await this.request<VerifyPaymentResponseDto>({
+    const response = await this.request<IVerifyPaymentResponse>({
       method: 'GET',
       url: 'transaction/verify/' + reference,
     });

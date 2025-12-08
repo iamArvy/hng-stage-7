@@ -1,42 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PaymentModelAction } from '../model-actions';
 import { PrismaService } from 'src/db/prisma.service';
-import { PaystackHttpClient } from '../clients';
 import { IJwtUser } from 'src/common/types';
+import { PaystackHttpClient } from 'src/integrations/paystack';
+import { InitializePaymentResponse, PaymentStatusDto } from '../dto';
 
 @Injectable()
 export class PaymentService {
   constructor(
-    private readonly modelAction: PaymentModelAction,
     private readonly paystackClient: PaystackHttpClient,
     private readonly prisma: PrismaService,
   ) {}
 
   getPayments() {
-    return this.modelAction.findAll();
+    return this.prisma.payment.findMany();
   }
 
   async initializePayment(rUser: IJwtUser, amount: number) {
     const user = await this.prisma.user.findUnique({ where: { id: rUser.id } });
     if (!user) throw new NotFoundException('User not found');
 
-    const payment = await this.modelAction.create({
-      amount,
-      user: { connect: { id: user.id } },
+    const payment = await this.prisma.payment.create({
+      data: {
+        amount,
+        user: { connect: { id: user.id } },
+      },
     });
 
-    const { reference, authorization_url } =
-      await this.paystackClient.initializePayment(
-        user.email,
-        amount,
-        payment.id,
-      );
+    const response = await this.paystackClient.initializePayment(
+      user.email,
+      amount,
+      payment.id,
+    );
 
-    return { reference, authorization_url };
+    return new InitializePaymentResponse(response);
   }
 
   async statusCheck(id: string, refresh: boolean) {
-    const payment = await this.modelAction.findOne({ id });
+    const payment = await this.prisma.payment.findUnique({ where: { id } });
 
     if (!payment) {
       throw new NotFoundException('Payment not found');
@@ -45,13 +45,13 @@ export class PaymentService {
       const { status, paid_at } = await this.paystackClient.verifyPayment(
         payment.id,
       );
-      const updatedPayment = await this.modelAction.update(
-        { id: payment.id },
-        { status, paid_at },
-      );
-      return { status: updatedPayment.status };
+      const updatedPayment = await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: { status, paid_at },
+      });
+      return new PaymentStatusDto(updatedPayment);
     }
-    return { status: payment.status };
+    return new PaymentStatusDto(payment);
   }
 
   webhookHandler(signature: string, body: any) {
